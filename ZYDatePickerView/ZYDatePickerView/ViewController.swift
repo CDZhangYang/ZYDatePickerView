@@ -16,9 +16,13 @@ class ViewController: UIViewController {
     }
 
     override func touchesBegan(touches: Set<UITouch>, withEvent event: UIEvent?) {
-        ZYDatePickerView.showDatePickerView(UIDatePickerMode.DateAndTime, themeColor: UIColor.redColor()) { (timeStr) in
+        
+        ZYDatePickerView.showDatePickerView(UIDatePickerMode.Date, themeColor: UIColor.blueColor(), dateFormat: ZYDateFormat.YMD) { (timeStr) in
             print(timeStr)
         }
+        
+        
+        
     }
 
 

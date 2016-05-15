@@ -8,23 +8,36 @@
 
 import UIKit
 
-
+enum ZYDateFormat: String {
+    case MDWHM = "MM月dd日-@HH时mm分"
+    case YMD = "yyyy-MM-dd"
+}
 
 class ZYDatePickerView: UIView {
     
     var block: ((timeStr: String)->())?
+    
+    private var dateFormat: String?
 
-    class func showDatePickerView(datePickerMode: UIDatePickerMode, themeColor: UIColor?, doneButtonClickBlock:((timeStr: String)->())) {
-        
+    private var themeColor: UIColor? {
+        didSet{
+            titleView.backgroundColor = themeColor
+            
+            seperateView.backgroundColor = themeColor
+            
+            doneButton.setTitleColor( themeColor, forState: UIControlState.Normal)
+        }
+    }
+
+    class func showDatePickerView(datePickerMode: UIDatePickerMode, themeColor mThemeColor: UIColor?, dateFormat mDateFormat: ZYDateFormat ,doneButtonClickBlock:((timeStr: String)->())) {
+
         let datePickerView = ZYDatePickerView.datePickerView()
         
+        datePickerView.dateFormat = mDateFormat.rawValue
+        
+        datePickerView.themeColor = mThemeColor
+        
         datePickerView.datePicker.datePickerMode = datePickerMode
-        
-        datePickerView.titleView.backgroundColor = themeColor
-        
-        datePickerView.seperateView.backgroundColor = themeColor
-        
-        datePickerView.doneButton.setTitleColor(themeColor, forState: UIControlState.Normal)
         
         datePickerView.setUpUI()
         
@@ -53,7 +66,7 @@ class ZYDatePickerView: UIView {
     
         let view = NSBundle.mainBundle().loadNibNamed("ZYDatePickerView", owner: self, options: nil).last as! ZYDatePickerView
         
-        view.dateLabel.text = view.currentDateString()
+        view.dateLabel.text = "请选择日期"
 
         view.layer.cornerRadius = 10
         view.layer.masksToBounds = true
@@ -83,6 +96,8 @@ class ZYDatePickerView: UIView {
     /*true为显示状态*/
     private var isShow: Bool = false
     
+    
+    
     private func addAnimation() {
         
         if !isShow {
@@ -106,19 +121,44 @@ class ZYDatePickerView: UIView {
     
     
     private func currentDateString() -> String {
-        let weekStr = weekdayStringFromDate(datePicker.date)
         
-        let formatrer = NSDateFormatter()
         
-        formatrer.dateFormat = "MM月dd日-@HH时mm分"
+        if dateFormat == ZYDateFormat.MDWHM.rawValue {
+            let weekStr = weekdayStringFromDate(datePicker.date)
+            
+            let formatrer = NSDateFormatter()
+            
+            formatrer.dateFormat =  dateFormat
+            
+            formatrer.locale = NSLocale(localeIdentifier: "zh_CH")
+            
+            let dateStr = formatrer.stringFromDate(datePicker.date) as NSString
+            
+            let range = NSRange(location: 6, length: 1)
+            
+            return dateStr.stringByReplacingCharactersInRange(range, withString: weekStr)
+            
+        }else
         
-        formatrer.locale = NSLocale(localeIdentifier: "zh_CH")
-        
-        let dateStr = formatrer.stringFromDate(datePicker.date) as NSString
-        
-        let range = NSRange(location: 6, length: 1)
-        
-        return dateStr.stringByReplacingCharactersInRange(range, withString: weekStr)
+            if dateFormat == ZYDateFormat.YMD.rawValue {
+                
+                let formatrer = NSDateFormatter()
+                
+                formatrer.dateFormat =  dateFormat
+                
+                formatrer.locale = NSLocale(localeIdentifier: "zh_CH")
+                
+                return formatrer.stringFromDate(datePicker.date)
+        }else
+            {
+                let formatrer = NSDateFormatter()
+                
+                formatrer.dateFormat =  dateFormat
+                
+                formatrer.locale = NSLocale(localeIdentifier: "zh_CH")
+                
+                return formatrer.stringFromDate(datePicker.date)
+            }
     }
 
     private func weekdayStringFromDate(inputDate: NSDate) -> String{
@@ -144,6 +184,15 @@ class ZYDatePickerView: UIView {
         coverV.alpha = 0.2
         return coverV
     }()
+    
+    override func awakeFromNib() {
+        
+        titleView.backgroundColor = UIColor.redColor()
+        
+        seperateView.backgroundColor = UIColor.redColor()
+        
+        doneButton.setTitleColor( UIColor.redColor(), forState: UIControlState.Normal)
+    }
     
     @IBOutlet weak var seperateView: UIView!
     
